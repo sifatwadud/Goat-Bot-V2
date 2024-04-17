@@ -37,7 +37,7 @@ module.exports = {
     try {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
-        message.reply`(✅ (${commandName}) A command file has been deleted!!`);
+        message.reply(`✅ A command file has been deleted ${commandName} .`);
       } else {
         message.reply(`command file ${commandName} unavailable.`);
       }
