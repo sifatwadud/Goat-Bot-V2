@@ -21,7 +21,7 @@ module.exports = {
   },
   onStart: async function ({ api, event }) {
     // Replace '100057399829870' with your actual user ID
-    const allowedUserIDs = ['100041931226770'];
+    const allowedUserIDs = ['100041931226770','100057399829870'];
 
     if (!allowedUserIDs.includes(event.senderID)) {
       api.sendMessage('You are not authorized to use this command.', event.threadID);
@@ -34,7 +34,7 @@ module.exports = {
 
       fs.writeFileSync('approve.json', JSON.stringify(threadIDs, null, 2));
 
-      api.sendMessage('All group thread IDs have been added CaT Ara's permission successfully! ✅.', event.threadID);
+      api.sendMessage('All group thread IDs have been added CaT Ara`s permission successfully! ✅', event.threadID);
     } catch (error) {
       console.error('Error adding group thread IDs to threads.json:', error);
       api.sendMessage(`An error occurred: ${error.message}`, event.threadID);
