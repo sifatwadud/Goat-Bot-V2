@@ -1,51 +1,89 @@
-const axios = require('axios');
+const axios = require("axios")
+const Prefixes = [
+  'fahima',
+];
 
 module.exports = {
   config: {
-    name: "cat",
-    version: 2.0,
-    author: "OtinXSandip",
-    longDescription: "SIM chat",
-    category: "fun",
-    guide: {
-      en: "{p}{n} questions",
+    name: 'cat',
+    version: '1.2',
+    author: 'NIB',
+    countDown: 5,
+    role: 0,
+    shortDescription: 'ai',
+    longDescription: {
+      vi: 'Chat với simsimi',
+      en: 'Chat with CaT Ara'
     },
-  },
-  makeApiRequest: async function (lado) {
-    try {
-      const response = await axios.get(`https://sandipapi.onrender.com/sim?chat=${lado}&lang=en&filter=true`);
-      return response.data.answer;
-    } catch (error) {
-      throw error;
+    category: 'ai',
+    guide: {
+      vi: '   {pn} [on | off]: bật/tắt simsimi'
+        + '\n'
+        + '\n   {pn} <word>: chat nhanh với simsimi'
+        + '\n   Ví dụ:\n    {pn} hi',
+      en: '   {pn} <word>: chat with hina'
+        + '\n   Example:\n    {pn} hi'
     }
   },
-  handleCommand: async function ({ message, event, args, api }) {
-    try {
-      const lado = encodeURIComponent(args.join(" "));
 
-      if (!lado) {
-        return message.reply(" 😺 Say something baka..!");
+  langs: {
+    vi: {
+      turnedOn: 'Bật simsimi thành công!',
+      turnedOff: 'Tắt simsimi thành công!',
+      chatting: 'Đang chat với simsimi...',
+      error: 'Simsimi đang bận, bạn hãy thử lại sau'
+    },
+    en: {
+      turnedOn: 'Turned on CaT successfully!',
+      turnedOff: 'Turned off CaT successfully!',
+      chatting: 'Already Chatting with CaT...',
+      error: 'dhur tor sathe kotha e bolbo na😾'
+    }
+  },
+
+  onStart: async function ({ args, threadsData, message, event, getLang }) {
+    if (args[0] == 'on' || args[0] == 'off') {
+      await threadsData.set(event.threadID, args[0] == "on", "settings.simsimi");
+      return message.reply(args[0] == "on" ? getLang("turnedOn") : getLang("turnedOff"));
+    }
+    else if (args[0]) {
+      const yourMessage = args.join(" ");
+      try {
+        const responseMessage = await getMessage(yourMessage);
+        return message.reply(`${responseMessage}`);
       }
-
-      const result = await this.makeApiRequest(lado);
-
-      message.reply({
-        body: `${result}`,
-      }, (err, info) => {
-        global.GoatBot.onReply.set(info.messageID, {
-          commandName: this.config.name,
-          messageID: info.messageID,
-          author: event.senderID
-        });
-      });
-    } catch (error) {
-      console.error("Error:", error.message);
+      catch (err) {
+        console.log(err)
+        return message.reply(getLang("error"));
+      }
     }
   },
-  onStart: function (params) {
-    return this.handleCommand(params);
-  },
-  onReply: function (params) {
-    return this.handleCommand(params);
-  },
+
+  onChat: async ({ args, message, threadsData, event, isUserCallCommand, getLang }) => {
+    if (args.length > 1 && !isUserCallCommand && await threadsData.get(event.threadID, "settings.simsimi")) {
+      try {
+        const langCode = await threadsData.get(event.threadID, "settings.lang") || global.GoatBot.config.language;
+        const responseMessage = await getMessage(args.join(" "), langCode);
+        return message.reply(`${responseMessage}`);
+      }
+      catch (err) {
+        return message.reply(getLang("error"));
+      }
+    }
+  }
 };
+
+async function getMessage(yourMessage, langCode) {
+  const res = await axios.post(
+    'https://api.simsimi.vn/v2/simtalk',
+    new URLSearchParams({
+        'text': yourMessage,
+        'lc': 'bn'
+    })
+);
+
+  if (res.status > 200)
+    throw new Error(res.data.success);
+
+  return res.data.message;
+}
