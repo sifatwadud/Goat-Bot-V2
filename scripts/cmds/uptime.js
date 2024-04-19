@@ -1,69 +1,50 @@
+const moment = require('moment-timezone');
+moment.tz.setDefault('Asia/Dhaka');
+const os = require('os');
+
 module.exports = {
   config: {
     name: "uptime",
-    aliases: ["upt"],
+    aliases: ["up","upt"],
     version: "1.0",
-    author: " Sahadat",
+    countDown: 10,
+    author: "sahadat",
+    role: 1,
     shortDescription: {
-      en: "uptime",
+      en: "status bot"
     },
     longDescription: {
-      en: "shows uptime and Speed of bot.",
+      en: "status bot"
     },
     category: "system",
     guide: {
-      en: "Use {p}uptime Or {p}upt to see uptime and Speed of bot.",
-    },
-  },
-
-  onStart: async function ({ api, event, args, usersData, threadsData }) {
-    try {
-      const allUsers = await usersData.getAll();
-      const allThreads = await threadsData.getAll();
-      const uptime = process.uptime();
-
-      const hours = Math.floor(uptime / 3600);
-      const minutes = Math.floor((uptime % 3600) / 60);
-      const seconds = Math.floor(uptime % 60);
-
-      const uptimeString = `${hours}Hrs ${minutes}min ${seconds}sec`;
-
-      const currentDate = new Date();
-      const options = { year: "numeric", month: "numeric", day: "numeric" };
-      const date = currentDate.toLocaleDateString("en-US", options);
-      const time = currentDate.toLocaleTimeString("en-US", {
-        timeZone: "Asia/Dhaka",
-        hour12: true,
-      });
-
-      const timeStart = Date.now();
-      await api.sendMessage({
-        body: "⏳ | Wait a second ",
-      }, event.threadID);
-
-      const ping = Date.now() - timeStart;
-
-      let pingStatus = " 🟢 | Very Good ";
-      if (ping > 200) {
-        pingStatus = " 🟩 | Good";
-      }
-      if (ping > 300) {
-        pingStatus = " ✅ | Medium..!!";
-      }
-      if (ping > 700) {
-        pingStatus = " ⭕ | Bad";
-      }
-      if (ping > 1300) {
-        pingStatus = "🔴 | Very Bad";
-      }
-
-      api.sendMessage({
-        body: `🚀 » Bot running time\n➡ ${uptimeString}\n\n👥 » Total Users\n➡ ${allUsers.length}\n\n✅ » Total threads\n➡ ${allThreads.length}\n\n📅 » Date\n➡ ${date}\n\n⏰ » Time\n➡ ${time}\n\n🚀 » Speed ${ping}ms\nSpeed Status » ${pingStatus}`,
-   
-      }, event.threadID);
-    } catch (error) {
-      console.error(error);
-      api.sendMessage("An error occurred while retrieving data.", event.threadID);
+      en: "{pn}"
     }
-  }
+  },
+  
+onStart: async function ({ message, event, usersData, threadsData }) {
+     const uptime = process.uptime();
+     const startTime = Date.now();
+     const jam = Math.floor(uptime / 3600);
+     const menit = Math.floor((uptime % 3600) / 60);
+     const detik = Math.floor(uptime % 60);
+     
+     const arif = `${jam} Hr(s) ${menit} Min(s) ${detik} sec(s)`;
+     
+     const now = moment();
+     const riley = now.format('DD-MMMM-Y || hh.mm.ss A');
+     
+     const veli = `${Math.round(os.totalmem() / (1024 * 1024 * 1024))} GB`;
+     const putra = await usersData.getAll();
+     const loufi = await threadsData.getAll(); 
+     const luxion = `${os.type()} ${os.release()}`;
+     const rizky = `${os.cpus()[0].model} (${os.cpus().length} cores)`
+     
+     const endTime = Date.now();
+     const raffa = endTime - startTime;
+     
+     const hadi = `🟢Bot Has Been Working For\n❯${arif}\n❯Bot Ping: ${raffa}\n❯Total Users: ${putra.length}\n❯Total Box: ${loufi.length}\n❯Running as: On Render\n❯Memory: ${veli}\n❯OS: ${luxion}\n❯CPU: ${rizky}\n❯D/T: ${riley}`
+  message.reply(hadi);
+	message.reaction("✅", event.messageID);
+   },
 };
