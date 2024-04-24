@@ -67,7 +67,7 @@ module.exports = {
 
             message.reply(`Correct Answer! ✅\nYou win ${money}$ and ${exp} experience points!`);
         } else {
-            message.reply(`Sorry, that's incorrect! 🔴\nThe correct answer is: "${answer}"`);
+            message.reply(`Sorry! that was incorrect answer please try again in 30 seconds!!`);
         }
     }
 };
