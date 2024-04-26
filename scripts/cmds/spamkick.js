@@ -4,7 +4,7 @@ const spamStatesFile = "spam.json";
 let spamStates = loadSpamStates();
 
 let messageCounts = {};
-const spamThreshold = 5;
+const spamThreshold = 9;
 const spamInterval = 60000;
 
 function loadSpamStates() {
