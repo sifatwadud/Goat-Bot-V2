@@ -1,4 +1,4 @@
--cmd install uptime.js const moment = require('moment-timezone');
+const moment = require('moment-timezone');
 moment.tz.setDefault('Asia/Dhaka');
 const os = require('os');
 
