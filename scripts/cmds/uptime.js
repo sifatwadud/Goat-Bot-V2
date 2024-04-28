@@ -47,7 +47,7 @@ module.exports = {
      
       const nehallovesMediaBanStatus = false; 
 
-      const nehallovesMediaBanText = nehallovesMediaBanStatus ? "🛑 Media Ban: Yes 😿" : "✅ Media Ban: No ✨";
+      const nehallovesMediaBanText = nehallovesMediaBanStatus ? "❯ Media Banned: Yes 😿" : "❯ Media Banned: No ✅";
 
       const statusMessage = `🟢 Bot Has Been Working For
 ❯ Uptime: ${nehallovesMetaUptimeString}
