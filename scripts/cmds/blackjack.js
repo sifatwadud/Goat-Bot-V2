@@ -1,14 +1,14 @@
 module.exports = {
   config: {
     name: "blackjack",
-    aliases: ["bljk"],
-    version: "1.1",
+     aliases: ["bljk"],
+    version: "1.0",
     author: "Abdul Kaiyum",
     shortDescription: {
-      en: "Blackjack game",
+      en: "Enjoy the Blackjack game with realistic features and a chance to win!",
     },
     longDescription: {
-      en: "Play Blackjack game with realistic features.",
+      en: "Play Blackjack with the bot and experience the thrill of winning big!",
     },
     category: "Game",
   },
@@ -16,104 +16,73 @@ module.exports = {
     en: {
       invalid_amount: "Invalid amount. Please enter a positive number.",
       not_enough_money: "Not enough money to place the bet.",
-      blackjack_message: "Your hand: %1\nDealer's hand: %2\nResult: %3\nWinnings: $%4",
-      split_message: "You chose to split. Playing two hands...",
+      blackjack_message: "🃏 Your hand: %1\n🃏 Dealer's hand: %2\n🎉 Result: %3\n💸 Winnings: $%4",
     },
   },
-  onStart: async function ({ args, message, event, usersData, getLang }) {
-    const { senderID } = event;
-    const userData = await usersData.get(senderID);
-
-    const betAmount = parseInt(args[0]);
-
-    if (isNaN(betAmount) || betAmount <= 0) {
-      return message.reply(getLang("invalid_amount"));
+  onStart: async function ({ args, message, event, usersData, getLang, commandName }) {
+    if (commandName !== "blackjack" || this.config.author !== "Abdul Kaiyum") {
+        return message.reply("Command disabled. Please contact the original author for assistance.");
     }
 
-    if (betAmount > userData.money) {
-      return message.reply(getLang("not_enough_money"));
+    try {
+      const { senderID } = event;
+      const userData = await usersData.get(senderID);
+
+      const betAmount = parseInt(args[0]);
+
+      if (isNaN(betAmount) || betAmount <= 0) {
+        return message.reply(getLang("invalid_amount"));
+      }
+
+      if (betAmount > userData.money) {
+        return message.reply(getLang("not_enough_money"));
+      }
+
+ 
+      const playerHand = [drawCard(), drawCard()];
+      const dealerHand = [drawCard(), drawCard()];
+
+ 
+      const result = playBlackjack(playerHand, dealerHand);
+
+      const winnings = calculateWinnings(result, betAmount);
+      await usersData.set(senderID, {
+        money: userData.money + winnings,
+        data: userData.data,
+      });
+
+   
+      const messageText = getLang("blackjack_message", formatHand(playerHand), formatHand(dealerHand), result, winnings);
+      return message.reply(messageText);
+    } catch (error) {
+      console.error("Error in Blackjack onStart:", error);
+      return message.reply("An error occurred while playing Blackjack.");
     }
-
-    // Initialize hands
-    const playerHand = [drawCard(), drawCard()];
-    const dealerHand = [drawCard(), drawCard()];
-
-    // Check for split option
-    if (canSplit(playerHand)) {
-      message.reply(getLang("split_message"));
-      return handleSplit(playerHand, dealerHand, betAmount, senderID, usersData, getLang);
-    }
-
-    // Play the game
-    const result = playBlackjack(playerHand, dealerHand);
-
-    // Calculate winnings and update user's balance
-    const winnings = calculateWinnings(result, betAmount);
-    await usersData.set(senderID, {
-      money: userData.money + winnings,
-      data: userData.data,
-    });
-
-    // Send game result message
-    const messageText = getLang("blackjack_message", formatHand(playerHand), formatHand(dealerHand), result, winnings);
-    return message.reply(messageText);
   },
 };
 
-// Helper function to check if a hand is eligible for splitting
-function canSplit(hand) {
-  return hand.length === 2 && hand[0] === hand[1];
-}
-
-// Helper function to ask the user if they want to split
-async function askSplitOption(message, getLang) {
-  const splitOptions = ["split", "no split"];
-  const splitResponse = await message.prompt(getLang("Do you want to split?"), splitOptions);
-  return splitResponse.toLowerCase();
-}
-
-// Helper function to handle the splitting logic
-async function handleSplit(playerHand, dealerHand, betAmount, senderID, usersData, getLang) {
-  const { money } = await usersData.get(senderID);
-
-  // Deduct additional bet for split hand
-  const splitBetAmount = betAmount;
-  if (splitBetAmount > money) {
-    return message.reply(getLang("not_enough_money"));
-  }
-
-  // Split the hand
-  const splitHand = [playerHand.pop(), drawCard()];
-  playerHand.push(drawCard());
-
-  // Play each hand separately
-  const result1 = playBlackjack(playerHand, dealerHand);
-  const result2 = playBlackjack(splitHand, dealerHand);
-
-  // Calculate winnings and update user's balance
-  const winnings1 = calculateWinnings(result1, betAmount);
-  const winnings2 = calculateWinnings(result2, splitBetAmount);
-
-  await usersData.set(senderID, {
-    money: money + winnings1 + winnings2,
-    data: userData.data,
-  });
-
-  // Send game result messages for both hands
-  const messageText1 = getLang("blackjack_message", formatHand(playerHand), formatHand(dealerHand), result1, winnings1);
-  const messageText2 = getLang("blackjack_message", formatHand(splitHand), formatHand(dealerHand), result2, winnings2);
-
-  return message.reply(`${messageText1}\n\n${messageText2}`);
-}
-
-// Helper function to draw a card (returns a random number between 1 and 11)
 function drawCard() {
   return Math.floor(Math.random() * 11) + 1;
 }
 
-// Helper function to format the hand for display
 function formatHand(hand) {
-  return hand.join(" | ");
+  const cardEmojis = {
+    1: "🂡", // Ace
+    2: "🂢", // 2
+    3: "🂣", // 3
+    4: "🂤", // 4
+    5: "🂥", // 5
+    6: "🂦", // 6
+    7: "🂧", // 7
+    8: "🂨", // 8
+    9: "🂩", // 9
+    10: "🂪", // 10
+    11: "🂫", // Jack
+    12: "🂭", // Queen
+    13: "🂮", // King
+  };
+
+  return hand.map(card => cardEmojis[card]).join(" ");
 }
 
 // Helper function to play the Blackjack game and determine the result
@@ -166,15 +135,14 @@ function calculateHandTotal(hand) {
   return total;
 }
 
-// Helper function to calculate winnings based on the game result
 function calculateWinnings(result, betAmount) {
   if (result.includes("Blackjack")) {
-    return betAmount * 1.5; // Blackjack usually pays 3:2
+    return betAmount * 1.5; 
   } else if (result.includes("You win")) {
-    return betAmount; // Regular win
+    return betAmount; 
   } else if (result.includes("You lose")) {
-    return -betAmount; // Regular loss
+    return -betAmount; 
   } else {
-    return 0; // Tie, no winnings or losses
+    return 0; 
   }
 }
