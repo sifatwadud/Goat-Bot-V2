@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["up","upt"],
     version: "1.0",
     countDown: 10,
-    author: "sahadat",
+    author: "Sahadat",
     role: 1,
     shortDescription: {
       en: "status bot"
@@ -54,7 +54,6 @@ module.exports = {
 ❯ Bot Ping: ${nehallovesMetaBotPing} ms
 ❯ Total Users: ${nehallovesMetaUsers.length}
 ❯ Total Threads: ${nehallovesMetaThreads.length}
-❯ Running as: On Render
 ❯ Memory: ${nehallovesMetaTotalMemory}
 ❯ OS: ${nehallovesMetaOperatingSystem}
 ❯ CPU: ${nehallovesMetaCpuInfo}
